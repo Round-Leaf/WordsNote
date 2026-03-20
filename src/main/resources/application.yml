@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/words_note
+    username: postgres
+    password: 123456
+  jpa:
+    hibernate:
+      ddl-auto: update # 自动根据 Java 类创建/更新数据库表
+    show-sql: true
