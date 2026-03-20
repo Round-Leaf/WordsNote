@@ -23,29 +23,18 @@ public class WordController {
     }
 
     @GetMapping
-    public Map<String, Object> welcome(@RequestParam(name="q",required = false,defaultValue = "") String query,
+    public Map<String, Object> get(@RequestParam(name="q",required = false,defaultValue = "") String query,
                                        Pageable pageable) {
-        Map<String,Object> response = new HashMap<>();
-        var page = wordRepository.findByWordContaining(query,pageable);
-        if(query!=null){
-            response.put("words",page.getContent());
-            response.put("currentPage",page.getNumber());
-            response.put("totalItems",page.getTotalElements());
-            response.put("totalPages",page.getTotalPages());
-            return  response;
-        }else{
-            return null;
-        }
+        return wordService.findAll(pageable);
     }
 
     @PostMapping
-    public WordDTO addWord(@Valid @RequestBody WordDTO wordDTO){
+    public Word addWord(@Valid @RequestBody WordDTO wordDTO){
         Word word = new Word();
         word.setWord(wordDTO.getWord());
         word.setMeaning(wordDTO.getMeaning());
         word.setExample(wordDTO.getExample());
         word.setSource(wordDTO.getSource());
-        wordRepository.save(word);
-        return new WordDTO(word.getWord(),word.getMeaning(),word.getExample(),word.getSource());
+        return wordRepository.save(word);
     }
 }

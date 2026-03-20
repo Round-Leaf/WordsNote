@@ -25,9 +25,8 @@ public class Word {
     @Column(nullable = false)
     private String meaning;
 
-    @Column(nullable = true)
+    @Column()
     private String example;
-
 
     private String source;
 
