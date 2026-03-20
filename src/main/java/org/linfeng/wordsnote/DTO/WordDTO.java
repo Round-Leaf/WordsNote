@@ -16,5 +16,7 @@ public class WordDTO {
     @NotBlank
     private String meaning;
 
+    private String example;
+
     private String source;
 }

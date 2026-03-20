@@ -6,12 +6,14 @@ import org.linfeng.wordsnote.entity.Word;
 import org.linfeng.wordsnote.repository.WordRepository;
 import org.linfeng.wordsnote.service.WordService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/word")
+@RequestMapping("/words")
+@CrossOrigin(origins = "http://localhost:5173")
 public class WordController {
     private WordService wordService;
     private WordRepository wordRepository;
@@ -19,22 +21,31 @@ public class WordController {
         this.wordService = wordService;
         this.wordRepository = wordRepository;
     }
-    @GetMapping("/list")
-    public Map<String, Object> welcome() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("status", "success");
-        map.put("message", "Welcome to Spring Boot Web Project!");
-        wordService.demo();
-        return map;
+
+    @GetMapping
+    public Map<String, Object> welcome(@RequestParam(name="q",required = false,defaultValue = "") String query,
+                                       Pageable pageable) {
+        Map<String,Object> response = new HashMap<>();
+        var page = wordRepository.findByWordContaining(query,pageable);
+        if(query!=null){
+            response.put("words",page.getContent());
+            response.put("currentPage",page.getNumber());
+            response.put("totalItems",page.getTotalElements());
+            response.put("totalPages",page.getTotalPages());
+            return  response;
+        }else{
+            return null;
+        }
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public WordDTO addWord(@Valid @RequestBody WordDTO wordDTO){
         Word word = new Word();
         word.setWord(wordDTO.getWord());
         word.setMeaning(wordDTO.getMeaning());
+        word.setExample(wordDTO.getExample());
         word.setSource(wordDTO.getSource());
         wordRepository.save(word);
-        return new WordDTO(word.getWord(),word.getMeaning(),word.getSource());
+        return new WordDTO(word.getWord(),word.getMeaning(),word.getExample(),word.getSource());
     }
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -7,13 +7,13 @@ import {
   Card,
   CardContent,
   Container,
-  Grid, // 使用最新的 Grid2
   IconButton,
   InputBase,
   Avatar,
   Chip,
   alpha
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   Search as SearchIcon,
   Add as AddIcon,
@@ -22,17 +22,45 @@ import {
   VolumeUp as VolumeIcon,
   FavoriteBorder as FavoriteIcon
 } from '@mui/icons-material';
+import axios from 'axios';
+import type { Word } from './types/wods';
+import WordDetailDialog from './components/WordDetailDialog';
 
-const wordData = [
-  { word: 'Ephemeral', definition: 'Lasting for a very short time.', category: 'Nature', color: '#6366f1' },
-  { word: 'Serendipity', definition: 'Happy chance occurrence.', category: 'Life', color: '#ec4899' },
-  { word: 'Eloquent', definition: 'Persuasive speaking or writing.', category: 'Skill', color: '#f59e0b' },
-  { word: 'Resilient', definition: 'Recovering quickly from difficulty.', category: 'Mindset', color: '#10b981' },
-  { word: 'Meticulous', definition: 'Great attention to detail.', category: 'Quality', color: '#3b82f6' },
-  { word: 'Luminous', definition: 'Full of or shedding light.', category: 'Visual', color: '#8b5cf6' },
-];
 
 const WordBook = () => {
+  const color="#6366f1";
+  const [wordData,setWordData] = useState<Word[]>([]);
+
+  const [selectedWord, setSelectedWord] = useState<Word>({
+    id: 1,
+  word: '',
+  meaning: '',      // 对应你 API 返回的字段
+  source: '',   // 问号表示可选字段
+  example: '',
+  createdAt: ''});
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleOpenDetail = (word:Word) => {
+    setSelectedWord(word);
+    setIsDialogOpen(true);
+  };
+
+const getRandomLightHex = () => {
+  const count = () => Math.floor(Math.random() * 56 + 200).toString(16);
+  //console.log(`#${count()}${count()}${count()}`)
+  return `#${count()}${count()}${count()}`;
+};
+  useEffect(()=>{
+    axios.get("http://localhost:8080/words",{
+      params:{
+        size:1000,
+        page:0,
+        sort:"id,desc"
+      }
+    }).then((response)=>{
+      setWordData(response.data.words);
+    });
+  },[]);
   return (
     <Box sx={{ bgcolor: '#f1f5f9', minHeight: '100vh' }}>
       {/* 顶部任务栏 - 极简浮动设计 */}
@@ -89,8 +117,9 @@ const WordBook = () => {
       <Container sx={{ py: 6 }}>
         <Grid container spacing={4}>
           {wordData.map((item, index) => (
-            <Grid xs={12} sm={6} md={4} lg={3} key={index}>
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
               <Card 
+                onClick={() => handleOpenDetail(item)}
                 sx={{ 
                   aspectRatio: '1 / 1', // 强制正方形
                   display: 'flex',
@@ -115,7 +144,7 @@ const WordBook = () => {
                   sx={{ 
                     position: 'absolute', top: -20, right: -20, 
                     width: 120, height: 120, borderRadius: '50%', 
-                    bgcolor: item.color, opacity: 0.05,
+                    bgcolor: getRandomLightHex(), opacity: 0.5,
                     transition: 'all 0.6s ease'
                   }} 
                 />
@@ -131,16 +160,16 @@ const WordBook = () => {
                 }}>
                   {/* 顶部：分类和收藏 */}
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    {/* <Chip 
-                      label={item.category} 
+                    <Chip 
+                      label={item.source} 
                       size="small" 
                       sx={{ 
-                        bgcolor: alpha(item.color, 0.1), 
-                        color: item.color, 
-                        fontWeight: 700,
+                        bgcolor: alpha(getRandomLightHex(), 0.05), 
+                        color: getRandomLightHex(), 
+                        fontWeight: 1000,
                         fontSize: '0.65rem'
                       }} 
-                    /> */}
+                    />
                     <IconButton size="small" sx={{ color: 'text.disabled' }}>
                       <FavoriteIcon fontSize="small" />
                     </IconButton>
@@ -166,7 +195,7 @@ const WordBook = () => {
                       WebkitBoxOrient: 'vertical',
                       overflow: 'hidden'
                     }}>
-                      {item.definition}
+                      {item.meaning}
                     </Typography>
                   </Box>
 
@@ -176,7 +205,7 @@ const WordBook = () => {
                       <IconButton size="small" sx={{ bgcolor: '#f8fafc' }}><VolumeIcon fontSize="small" /></IconButton>
                       <IconButton size="small" sx={{ bgcolor: '#f8fafc' }}><SettingsIcon fontSize="small" /></IconButton>
                     </Box>
-                    <Box sx={{ width: 32, height: 4, bgcolor: item.color, borderRadius: 2 }} />
+                    <Box sx={{ width: 32, height: 4, bgcolor: getRandomLightHex(), borderRadius: 2 }} />
                   </Box>
                 </CardContent>
               </Card>
@@ -184,6 +213,11 @@ const WordBook = () => {
           ))}
         </Grid>
       </Container>
+      <WordDetailDialog 
+        open={isDialogOpen} 
+        onClose={() => setIsDialogOpen(false)} 
+        word={selectedWord} 
+      />
     </Box>
   );
 };

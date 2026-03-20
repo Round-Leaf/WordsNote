@@ -25,6 +25,10 @@ public class Word {
     @Column(nullable = false)
     private String meaning;
 
+    @Column(nullable = true)
+    private String example;
+
+
     private String source;
 
     @Column(name = "created_at",insertable = false, updatable = false,columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP")
