@@ -31,11 +31,14 @@ const WordDetailDialog: React.FC<WordDetailDialogProps> = ({ open, onClose, word
   if (!word) return null;
 
   // 格式化日期：例如 2024-05-20
-  const formattedDate = new Date(word.createdAt).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+const formattedDate = new Date(word.createdAt).toLocaleString(undefined, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: '2-digit',   // 显示两位数字的小时（例如 09 或 21）
+  minute: '2-digit', // 显示两位数字的分钟
+  hour12: false      // 是否使用 12 小时制（false 表示 24 小时制）
+});
 
   return (
     <Dialog
@@ -66,8 +69,8 @@ const WordDetailDialog: React.FC<WordDetailDialogProps> = ({ open, onClose, word
           {/* 单词标题与发音按钮 */}
           <Box>
             <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-              <Typography 
-                variant="h3" 
+              <Typography
+                variant="h4" // Changed from h3 to h4 to make the font smaller
                 sx={{ 
                   fontWeight: 900, 
                   letterSpacing: '-0.02em',

@@ -12,7 +12,9 @@ import java.util.List;
 @Repository
 public interface WordRepository extends JpaRepository<Word, Long> {
 
-    Page<Word> findByWordContaining(String word, Pageable pageable);
+    @Query(value = "SELECT * FROM words WHERE unaccent(word) ILIKE CONCAT('%', :word, '%') LIMIT 20",
+            nativeQuery = true)
+    List<Word> findByWordContaining(String word);
 
     @Query("SELECT DISTINCT source FROM Word")
     List<String> findSources();

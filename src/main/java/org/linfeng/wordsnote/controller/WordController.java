@@ -2,9 +2,11 @@ package org.linfeng.wordsnote.controller;
 
 import jakarta.validation.Valid;
 import org.linfeng.wordsnote.DTO.WordDTO;
+import org.linfeng.wordsnote.common.result.Result;
 import org.linfeng.wordsnote.entity.Word;
 import org.linfeng.wordsnote.repository.WordRepository;
 import org.linfeng.wordsnote.service.WordService;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
@@ -22,10 +24,20 @@ public class WordController {
         this.wordRepository = wordRepository;
     }
 
+    @DeleteMapping("/{id}")
+    public Result<String> delete(@PathVariable("id") Long id){
+        wordRepository.deleteById(id);
+        return Result.success("delete success");
+    }
+
     @GetMapping
     public Map<String, Object> get(@RequestParam(name="q",required = false,defaultValue = "") String query,
                                        Pageable pageable) {
-        return wordService.findAll(pageable);
+        if(StringUtils.hasText(query)){
+            return wordService.searchWord(query);
+        }else {
+            return wordService.findAll(pageable);
+        }
     }
 
     @PostMapping

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -24,5 +25,15 @@ public class WordService {
         response.put("totalPages",page.getTotalPages());
         return  response;
 
+    }
+
+    public Map<String, Object> searchWord(String query) {
+        Map<String,Object> response = new HashMap<>();
+        List<Word> result = wordRepository.findByWordContaining(query);
+        response.put("words",result);
+        response.put("currentPage",0);
+        response.put("totalItems",result.size());
+        response.put("totalPages",1);
+        return response;
     }
 }

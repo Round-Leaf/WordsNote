@@ -11,13 +11,15 @@ import {
 import {
   VolumeUp as VolumeIcon,
   FavoriteBorder as FavoriteIcon,
-  Settings as SettingsIcon
+  Delete as DeleteIcon
 } from '@mui/icons-material';
 import type { Word } from '../types/wods';
+import axios from 'axios';
 
 interface WordCardProps {
   word: Word;
   onClick: (word: Word) => void;
+  deleteWord:(id:number)=>void;
 }
 
 const getRandomLightHex = () => {
@@ -25,10 +27,16 @@ const getRandomLightHex = () => {
   return `#${count()}${count()}${count()}`;
 };
 
-const WordCard: React.FC<WordCardProps> = ({ word, onClick }) => {
+const WordCard: React.FC<WordCardProps> = ({ word, onClick,deleteWord }) => {
   const randomBgColor = getRandomLightHex();
   const randomChipColor = getRandomLightHex();
-
+  const onDeleteWord = (id:number)=>{
+    axios.delete(`http://localhost:8080/words/${id}`).then((response)=>{
+    deleteWord(id);
+  }).catch((error)=>{
+    console.log(error);
+  })
+}
   return (
     <Card
       onClick={() => onClick(word)}
@@ -88,14 +96,23 @@ const WordCard: React.FC<WordCardProps> = ({ word, onClick }) => {
         </Box>
 
         {/* 中间：单词主体 */}
-        <Box>
+        <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
           <Typography variant="h4" sx={{
             fontWeight: 800,
             color: '#1e293b',
             mb: 1,
-            fontSize: { md: '1.75rem', lg: '2rem' },
-            letterSpacing: -1
-          }}>
+            // Allow long words to break, wrap, and hyphenate
+            wordBreak: 'break-word',
+            hyphens: 'auto',
+            fontSize: { md: '1.25rem', lg: '1.5rem' },
+            letterSpacing: -1,
+            // For multi-line ellipsis if content exceeds 2 lines
+            display: '-webkit-box',
+            WebkitLineClamp: 3, // Limit to 2 lines before truncating
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden', // Hide overflowing content
+          }}
+          >
             {word.word}
           </Typography>
           <Typography variant="body2" sx={{
@@ -114,7 +131,7 @@ const WordCard: React.FC<WordCardProps> = ({ word, onClick }) => {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
             <IconButton size="small" sx={{ bgcolor: '#f8fafc' }}><VolumeIcon fontSize="small" /></IconButton>
-            <IconButton size="small" sx={{ bgcolor: '#f8fafc' }}><SettingsIcon fontSize="small" /></IconButton>
+            <IconButton onClick={(e)=>{e.stopPropagation();onDeleteWord(word.id);}} size="small" sx={{ bgcolor: '#f8fafc' }}><DeleteIcon fontSize="small" /></IconButton>
           </Box>
           <Box sx={{ width: 32, height: 4, bgcolor: getRandomLightHex(), borderRadius: 2 }} />
         </Box>

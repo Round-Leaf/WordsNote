@@ -38,6 +38,7 @@ const AddWordDialog: React.FC<AddWordDialogProps> = ({ open, onClose, onSubmit }
   const NEW_SOURCE_OPTION_VALUE = "__ADD_NEW_SOURCE__"; // 用于“添加新来源”选项的唯一值
 
   useEffect(() => {
+    if(open==false) return;
     axios.get('http://localhost:8080/sources')
       .then((response) => {
         setAvailableSources(response.data);
@@ -45,7 +46,8 @@ const AddWordDialog: React.FC<AddWordDialogProps> = ({ open, onClose, onSubmit }
       .catch((error) => {
         console.error('Error fetching sources:', error);
       });
-    },[]);
+    },[open]);
+
   const handleClearForm = () => {
     setWord('');
     setMeaning('');
