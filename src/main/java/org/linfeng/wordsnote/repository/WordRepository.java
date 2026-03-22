@@ -18,4 +18,7 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     @Query("SELECT DISTINCT source FROM Word")
     List<String> findSources();
+
+    @Query(value="SELECT new Word(id,createdAt,example,meaning,source,word) FROM Word")
+    Page<Word> findAllWithoutEmbedding(Pageable pageable);
 }

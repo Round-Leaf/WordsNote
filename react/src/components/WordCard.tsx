@@ -11,10 +11,12 @@ import {
 import {
   VolumeUp as VolumeIcon,
   FavoriteBorder as FavoriteIcon,
-  Delete as DeleteIcon
+  Delete as DeleteIcon,
+  CompareArrows as CompareArrowsIcon, // Import the new icon
 } from '@mui/icons-material';
 import type { Word } from '../types/wods';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 
 interface WordCardProps {
   word: Word;
@@ -28,6 +30,7 @@ const getRandomLightHex = () => {
 };
 
 const WordCard: React.FC<WordCardProps> = ({ word, onClick,deleteWord }) => {
+  const navigate = useNavigate();
   const randomBgColor = getRandomLightHex();
   const randomChipColor = getRandomLightHex();
   const onDeleteWord = (id:number)=>{
@@ -130,7 +133,10 @@ const WordCard: React.FC<WordCardProps> = ({ word, onClick,deleteWord }) => {
         {/* 底部：操作栏 */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', gap: 0.5 }}>
-            <IconButton size="small" sx={{ bgcolor: '#f8fafc' }}><VolumeIcon fontSize="small" /></IconButton>
+            <IconButton size="small" sx={{ bgcolor: '#f8fafc' }} onClick={(e) => e.stopPropagation()}>
+              <VolumeIcon fontSize="small" />
+            </IconButton>
+            <IconButton type="button" size="small" sx={{ bgcolor: '#f8fafc' }} onClick={(e) => {e.stopPropagation();navigate(`?synonym=${word.id}`);}}><CompareArrowsIcon fontSize="small" /></IconButton> {/* New icon for synonyms */}
             <IconButton onClick={(e)=>{e.stopPropagation();onDeleteWord(word.id);}} size="small" sx={{ bgcolor: '#f8fafc' }}><DeleteIcon fontSize="small" /></IconButton>
           </Box>
           <Box sx={{ width: 32, height: 4, bgcolor: getRandomLightHex(), borderRadius: 2 }} />

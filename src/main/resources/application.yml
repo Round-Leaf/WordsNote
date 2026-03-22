@@ -7,3 +7,6 @@ spring:
     hibernate:
       ddl-auto: update # 自动根据 Java 类创建/更新数据库表
     show-sql: true
+siliconflow:
+  api:
+    token: sk-yholrdxclbekdjgdpvrmdzjaujnmsjfxvhtxxvbtsxmyvcxe

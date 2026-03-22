@@ -1,11 +1,12 @@
 package org.linfeng.wordsnote.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.generator.EventType;
+import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 
@@ -30,7 +31,26 @@ public class Word {
 
     private String source;
 
+    @Column(columnDefinition = "vector(1024)")
+    @Basic(fetch = FetchType.LAZY)
+    @JsonIgnore
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    private float[] embedding;
+
+    @OneToOne(mappedBy = "word", cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
+    private Revision revision;
+
     @Column(name = "created_at",insertable = false, updatable = false,columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP")
     @Generated(event = EventType.INSERT)
     private OffsetDateTime createdAt;
+
+    Word(Long id,OffsetDateTime createdAt,String example,String meaning,String source,String word){
+        this.id = id;
+        this.createdAt = createdAt;
+        this.example = example;
+        this.meaning = meaning;
+        this.source = source;
+        this.word = word;
+    }
 }

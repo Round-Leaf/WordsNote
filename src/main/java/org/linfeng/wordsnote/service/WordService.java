@@ -18,7 +18,7 @@ public class WordService {
 
     public Map<String,Object> findAll(Pageable pageable){
         Map<String,Object> response = new HashMap<>();
-        Page<Word> page = wordRepository.findAll(pageable);
+        Page<Word> page = wordRepository.findAllWithoutEmbedding(pageable);
         response.put("words",page.getContent());
         response.put("currentPage",page.getNumber());
         response.put("totalItems",page.getTotalElements());

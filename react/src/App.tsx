@@ -14,15 +14,20 @@ import WordDetailDialog from './components/WordDetailDialog';
 import Header from './components/Header'; // Import the new Header component
 import WordCard from './components/WordCard'; // Import the new WordCard component
 import AddWordDialog from './components/AddWordDialog'; // Import the new AddWordDialog component
+import { useSearchParams } from 'react-router-dom';
 
 
 
 const WordBook = () => {
   const [wordData,setWordData] = useState<Word[]>([]);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedWord, setSelectedWord] = useState<Word | null>(null); // Initialize with null
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [totalPages,setTotalPages] = useState(1);
-  const [currentPage,setCurrentPage] = useState(1);
+  const currentPage = Number(searchParams.get("page"))||1;
+  const querySearchValue = searchParams.get("query")||'';
+  const synonym = searchParams.get("synonym")||'';
+  const [searchValue, setSearchValue] = useState(querySearchValue);
   const [isAddWordDialogOpen, setIsAddWordDialogOpen] = useState(false); // State for AddWordDialog
   const deleteWord = (id:number)=>{
     setWordData((prev)=>{
@@ -71,21 +76,17 @@ const WordBook = () => {
       console.error('Error adding new word:', error);
     }
   };
-
-  useEffect(()=>{
-    getWords();
-  },[currentPage]); // Fetch words when currentPage changes
-  const [searchValue,setSearchValue] = useState('')
-
+  
+  let searching = false;
   useEffect(()=>{
     if(searchValue===''){
       getWords();
       return;
     }
-    const handle = setTimeout(()=>{
+    
     axios.get("http://localhost:8080/words",{
       params:{
-        "q":searchValue
+        "q":querySearchValue
       }
     }).then((response)=>{
       setWordData(response.data.words);
@@ -93,11 +94,25 @@ const WordBook = () => {
     }).catch((error)=>{
       console.log(error);
     });
-  },500);
-  return ()=>{
-    clearTimeout(handle);
-  }
+  },[currentPage,querySearchValue,synonym]);
+
+  useEffect(()=>{
+    
+    const handle = setTimeout(()=>{
+      const newParams = new URLSearchParams(searchParams);
+      
+      newParams.set("page","1");
+      if(searchValue!==''){
+      newParams.set("query",searchValue);
+      setSearchParams(newParams);
+      }
+    },500);
+    return ()=>{
+      clearTimeout(handle);
+    }
   },[searchValue]);
+
+
 
   function search(event: React.ChangeEvent<HTMLInputElement, Element>) {
     setSearchValue(event.target.value);
@@ -123,7 +138,11 @@ const WordBook = () => {
             page={currentPage} // This will be dynamic based on current page state
             color="primary"
             size="large"
-            onChange={(e,p)=>{setCurrentPage(p)}}
+            onChange={(e,p)=>{
+              const newParams = new URLSearchParams(searchParams);
+              newParams.set("page",p.toString());
+              setSearchParams(newParams);
+            }}
           />
         </Stack>
 

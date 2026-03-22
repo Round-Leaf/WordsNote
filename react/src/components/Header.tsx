@@ -41,7 +41,7 @@ const Header: React.FC<HeaderProps> = ({
     >
       <Container maxWidth="lg">
         <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box onClick={()=>{window.location.href="/"}} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{
               bgcolor: 'primary.main',
               width: 32, height: 32,
