@@ -15,6 +15,7 @@ import Header from './components/Header'; // Import the new Header component
 import WordCard from './components/WordCard'; // Import the new WordCard component
 import AddWordDialog from './components/AddWordDialog'; // Import the new AddWordDialog component
 import { useSearchParams } from 'react-router-dom';
+import type { SelectChangeEvent } from '@mui/material'; // Import SelectChangeEvent for type safety from top-level
 
 
 
@@ -25,9 +26,11 @@ const WordBook = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [totalPages,setTotalPages] = useState(1);
   const currentPage = Number(searchParams.get("page"))||1;
-  const querySearchValue = searchParams.get("query")||'';
+  const querySearchValue = searchParams.get("query") || '';
+  const searchByType = (searchParams.get("searchBy") as 'word' | 'meaning') || 'word'; // Read searchBy from URL params
   const synonym = searchParams.get("synonym")||'';
   const [searchValue, setSearchValue] = useState(querySearchValue);
+  const [searchType, setSearchType] = useState<'word' | 'meaning'>(searchByType); // State for the selected search type
   const [isAddWordDialogOpen, setIsAddWordDialogOpen] = useState(false); // State for AddWordDialog
   const deleteWord = (id:number)=>{
     setWordData((prev)=>{
@@ -77,8 +80,24 @@ const WordBook = () => {
     }
   };
   
-  let searching = false;
   useEffect(()=>{
+    if(synonym!==''){
+      axios.get(`http://localhost:8080/words`,{
+      params:{
+        "q": synonym,
+        "searchBy": "meaning",
+        size:20, 
+        page:currentPage-1,
+        sort:"id,desc"
+      }
+      }).then((response)=>{
+      setWordData(response.data.words);
+      setTotalPages(response.data.totalPages);
+      }).catch((error)=>{
+        console.log(error);
+      });
+      return;
+    }
     if(searchValue===''){
       getWords();
       return;
@@ -86,7 +105,11 @@ const WordBook = () => {
     
     axios.get("http://localhost:8080/words",{
       params:{
-        "q":querySearchValue
+        "q": querySearchValue,
+        "searchBy": searchByType, // Pass the search type to the backend
+        size:20, // Ensure pagination parameters are still included for search results
+        page:currentPage-1,
+        sort:"id,desc"
       }
     }).then((response)=>{
       setWordData(response.data.words);
@@ -94,38 +117,49 @@ const WordBook = () => {
     }).catch((error)=>{
       console.log(error);
     });
-  },[currentPage,querySearchValue,synonym]);
+  },[currentPage,querySearchValue,synonym,searchByType]); // Add searchByType to dependencies
 
-  useEffect(()=>{
-    
-    const handle = setTimeout(()=>{
+  const onSearchKeyDown = (e:React.KeyboardEvent<HTMLInputElement>)=>{
+    if(e.key==='Enter'){
       const newParams = new URLSearchParams(searchParams);
-      
-      newParams.set("page","1");
       if(searchValue!==''){
+      newParams.set("page","1");
       newParams.set("query",searchValue);
       setSearchParams(newParams);
+      } else {
+        newParams.delete("query"); // Remove query param if search value is empty
       }
-    },500);
-    return ()=>{
-      clearTimeout(handle);
+      newParams.set("searchBy", searchType); // Update searchBy param in URL
+      setSearchParams(newParams); // Set params after all updates
     }
-  },[searchValue]);
+    }
 
 
 
-  function search(event: React.ChangeEvent<HTMLInputElement, Element>) {
+  function handleSearchValueChange(event: React.ChangeEvent<HTMLInputElement>) { // Renamed for clarity and corrected type
     setSearchValue(event.target.value);
   }
+
+  const handleSearchTypeChange = (event: SelectChangeEvent<'word' | 'meaning'>) => {
+    setSearchType(event.target.value as 'word' | 'meaning');
+  };
+
   return (
     <Box sx={{ bgcolor: '#f1f5f9', minHeight: '100vh' }}>
-      <Header onAddClick={handleAddWordOpen} searchValue={searchValue} onSearchChange={search} /> {/* Pass handler to Header */}
+      <Header
+        onAddClick={handleAddWordOpen}
+        searchValue={searchValue}
+        onSearchChange={handleSearchValueChange}
+        onSearchKeyDown={onSearchKeyDown}
+        searchType={searchType} // Pass the current search type
+        onSearchTypeChange={handleSearchTypeChange} // Pass the handler for search type changes
+      />
 
       {/* 主体内容 */}
       <Container sx={{ py: 6 }}>
         <Grid container spacing={4}>
-          {wordData.map((item, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}> {/* Changed size to item for Grid */}
+          {wordData.map((item, index) => ( // Corrected Grid usage: `item` prop is required for responsive layout
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={item.id || index}> {/* Using item.id as key if available, otherwise index */}
               <WordCard word={item} onClick={handleOpenDetail} deleteWord={deleteWord} /> {/* Use the new WordCard component */}
             </Grid>
           ))}

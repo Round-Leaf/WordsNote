@@ -5,6 +5,7 @@ import org.linfeng.wordsnote.DTO.WordDTO;
 import org.linfeng.wordsnote.common.result.Result;
 import org.linfeng.wordsnote.entity.Revision;
 import org.linfeng.wordsnote.entity.Word;
+import org.linfeng.wordsnote.entity.WordWithoutEmbedding;
 import org.linfeng.wordsnote.repository.RevisionRepository;
 import org.linfeng.wordsnote.repository.WordRepository;
 import org.linfeng.wordsnote.service.EmbeddingService;
@@ -45,9 +46,20 @@ public class WordController {
 
     @GetMapping
     public Map<String, Object> get(@RequestParam(name="q",required = false,defaultValue = "") String query,
-                                       Pageable pageable) {
+                                       @RequestParam(required = false,defaultValue = "word") String searchBy,Pageable pageable) throws IOException, InterruptedException {
         if(StringUtils.hasText(query)){
-            return wordService.searchWord(query);
+            if(searchBy.equals("word")) {
+                return wordService.searchWord(query,pageable);
+            }else if(searchBy.equals("meaning")){
+                if(query==null) throw new RuntimeException("You must send query");
+                if(org.apache.commons.lang3.StringUtils.isNumeric(query)) {
+                    Long id = Long.valueOf(query);
+                    return wordService.findSynonymById(id,pageable);
+                }else{
+                    return wordService.findSynonymByMeaning(query,pageable);
+                }
+            }
+            throw new RuntimeException("searchBy must be meaning or word");
         }else {
             return wordService.findAll(pageable);
         }
@@ -65,18 +77,9 @@ public class WordController {
         return words;
     }
 
-    @PostMapping
-    public Word addWord(@Valid @RequestBody WordDTO wordDTO){
-        Word word = new Word();
-        word.setWord(wordDTO.getWord());
-        word.setMeaning(wordDTO.getMeaning());
-        word.setExample(wordDTO.getExample());
-        word.setSource(wordDTO.getSource());
 
-        Revision revision = new Revision();
-        revision.setWord(word);
-        revision.setRevisionTimes(0);
-        word.setRevision(revision);
-        return wordRepository.save(word);
+    @PostMapping
+    public Word addWord(@Valid @RequestBody WordDTO wordDTO) throws IOException, InterruptedException {
+        return wordService.addWord(wordDTO);
     }
 }
