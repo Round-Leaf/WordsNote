@@ -30,6 +30,7 @@ const WordBook = () => {
   const searchByType = (searchParams.get("searchBy") as 'word' | 'meaning') || 'word'; // Read searchBy from URL params
   const synonym = searchParams.get("synonym")||'';
   const [searchValue, setSearchValue] = useState(querySearchValue);
+  const [wordToModify, setWordToModify] = useState<Word | null>(null); // State for the word being modified
   const [searchType, setSearchType] = useState<'word' | 'meaning'>(searchByType); // State for the selected search type
   const [isAddWordDialogOpen, setIsAddWordDialogOpen] = useState(false); // State for AddWordDialog
   const deleteWord = (id:number)=>{
@@ -37,6 +38,10 @@ const WordBook = () => {
       return prev.filter((item)=>item.id!==id);
     });
   }
+  const modifyWordDialogOpen = (word: Word) => {
+    setWordToModify(word);
+    setIsAddWordDialogOpen(true);
+  };
   const getWords = ()=>{
     axios.get("http://localhost:8080/words",{
       params:{
@@ -124,6 +129,7 @@ const WordBook = () => {
       const newParams = new URLSearchParams(searchParams);
       if(searchValue!==''){
       newParams.set("page","1");
+      newParams.delete("synonym");
       newParams.set("query",searchValue);
       setSearchParams(newParams);
       } else {
@@ -182,11 +188,13 @@ const WordBook = () => {
 
       </Container>
       <WordDetailDialog 
+        openModifyWordDialog={modifyWordDialogOpen}
         open={isDialogOpen} 
         onClose={() => setIsDialogOpen(false)} 
         word={selectedWord} 
       />
       <AddWordDialog
+        wordToFill={wordToModify}
         open={isAddWordDialogOpen}
         onClose={handleAddWordClose}
         onSubmit={handleAddWordSubmit}

@@ -10,14 +10,16 @@ import {
   alpha, 
   Divider, 
   Chip, 
-  Tooltip 
+  Tooltip,
+  Button 
 } from '@mui/material';
 import { 
   Close as CloseIcon, 
   VolumeUp as VolumeIcon, 
   MenuBook as SourceIcon, 
   EventNote as DateIcon,
-  FormatQuote as QuoteIcon 
+  FormatQuote as QuoteIcon,
+  Edit as EditIcon 
 } from '@mui/icons-material';
 import type { Word } from '../types/wods';
 
@@ -25,9 +27,10 @@ interface WordDetailDialogProps {
   open: boolean;
   onClose: () => void; // 建议简化为标准 void 回调
   word: Word | null;
+  openModifyWordDialog: (word: Word) => void; 
 }
 
-const WordDetailDialog: React.FC<WordDetailDialogProps> = ({ open, onClose, word }) => {
+const WordDetailDialog: React.FC<WordDetailDialogProps> = ({ open, onClose, word, openModifyWordDialog }) => {
   if (!word) return null;
 
   // 格式化日期：例如 2024-05-20
@@ -150,6 +153,29 @@ const formattedDate = new Date(word.createdAt).toLocaleString(undefined, {
               sx={{ borderRadius: 1.5, borderColor: 'divider' }}
             />
           </Stack>
+
+          {/* Edit Button */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', pt: 2 }}>
+            <Button
+              onClick={() => openModifyWordDialog(word)} // Call the function passed from App to open the modify dialog
+              variant="contained"
+              startIcon={<EditIcon />}
+              sx={{
+                borderRadius: 3,
+                textTransform: 'none',
+                fontWeight: 600,
+                background: (theme) => `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                '&:hover': {
+                  boxShadow: '0 6px 20px rgba(0,0,0,0.25)',
+                  transform: 'translateY(-1px)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
+            >
+              Modify
+            </Button>
+          </Box>
 
         </Stack>
       </DialogContent>

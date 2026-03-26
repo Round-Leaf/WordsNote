@@ -20,19 +20,22 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon, AddCircleOutline as AddIcon } from '@mui/icons-material';
 import axios from 'axios';
+import type { Word } from '../types/wods';
 
 
-interface AddWordDialogProps {
+type AddWordDialogProps = {
   open: boolean;
+  wordToFill: Word|null;
   onClose: () => void;
   onSubmit: (wordData: { word: string; meaning: string; source: string; example: string }) => void;
 }
 
-const AddWordDialog: React.FC<AddWordDialogProps> = ({ open, onClose, onSubmit }) => {
-  const [word, setWord] = useState('');
-  const [meaning, setMeaning] = useState('');
-  const [source, setSource] = useState('');
-  const [example, setExample] = useState('');
+const AddWordDialog: React.FC<AddWordDialogProps> = ({ open, wordToFill, onClose, onSubmit }) => {
+  console.log("AddWordDialog rendered with wordToFill:", wordToFill?wordToFill:"null");
+  const [word, setWord] = useState(wordToFill ? wordToFill.word : '');
+  const [meaning, setMeaning] = useState(wordToFill ? wordToFill.meaning : '');
+  const [source, setSource] = useState(wordToFill ? wordToFill.source : '');
+  const [example, setExample] = useState(wordToFill ? wordToFill.example : '');
   const [availableSources, setAvailableSources] = useState<string[]>([]);
   const [isAddingNewSource, setIsAddingNewSource] = useState(false);
   const NEW_SOURCE_OPTION_VALUE = "__ADD_NEW_SOURCE__"; // 用于“添加新来源”选项的唯一值
@@ -47,6 +50,24 @@ const AddWordDialog: React.FC<AddWordDialogProps> = ({ open, onClose, onSubmit }
         console.error('Error fetching sources:', error);
       });
     },[open]);
+
+    useEffect(() => {
+      if(wordToFill) {
+        setSource(wordToFill.source);
+      }
+    }, [availableSources]); 
+  useEffect(() => {
+  if (wordToFill) {
+     setWord(wordToFill.word);
+     setMeaning(wordToFill.meaning);
+     setExample(wordToFill.example);
+  } else {
+    setWord('');
+    setMeaning('');
+    setSource('');
+    setExample('');
+  }
+}, [wordToFill]);
 
   const handleClearForm = () => {
     setWord('');
