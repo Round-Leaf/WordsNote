@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -44,6 +45,7 @@ public class WordService {
         return response;
     }
 
+    @Transactional
     public Word addWord(@Valid WordDTO wordDTO) throws IOException, InterruptedException {
         Word word = new Word();
         word.setWord(wordDTO.getWord());
@@ -78,5 +80,16 @@ public class WordService {
         response.put("totalItems",page.getTotalElements());
         response.put("totalPages",page.getTotalPages());
         return response;
+    }
+
+    @Transactional
+    public Word updateWord(Long id, @Valid WordDTO wordDTO) throws IOException, InterruptedException {
+        Word word = wordRepository.findById(id).orElseThrow();
+        word.setWord(wordDTO.getWord());
+        word.setSource(wordDTO.getSource());
+        word.setMeaning(wordDTO.getMeaning());
+        word.setExample(wordDTO.getExample());
+        word.setEmbedding(embeddingService.getEmbedding(word.getMeaning()));
+        return word;
     }
 }

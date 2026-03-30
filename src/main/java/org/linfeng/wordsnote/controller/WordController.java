@@ -44,6 +44,11 @@ public class WordController {
         return Result.success("delete success");
     }
 
+    @PutMapping("/{id}")
+    public Word updateWord(@PathVariable("id") Long id,@Valid @RequestBody WordDTO wordDTO) throws IOException, InterruptedException {
+        return wordService.updateWord(id,wordDTO);
+    }
+
     @GetMapping
     public Map<String, Object> get(@RequestParam(name="q",required = false,defaultValue = "") String query,
                                        @RequestParam(required = false,defaultValue = "word") String searchBy,Pageable pageable) throws IOException, InterruptedException {
@@ -76,6 +81,8 @@ public class WordController {
         }
         return words;
     }
+
+
 
 
     @PostMapping
