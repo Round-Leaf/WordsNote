@@ -46,6 +46,7 @@ public class WordController {
 
     @PutMapping("/{id}")
     public Word updateWord(@PathVariable("id") Long id,@Valid @RequestBody WordDTO wordDTO) throws IOException, InterruptedException {
+        System.out.println("获取了put");
         return wordService.updateWord(id,wordDTO);
     }
 

@@ -72,6 +72,7 @@ const WordBook = () => {
 
   const handleAddWordSubmit = async (wordData: { word: string; meaning: string; source: string; example: string }) => {
     console.log("New word submitted:", wordData);
+    if(wordToModify==null){
     try {
       // Assuming the backend returns the newly created Word object with id and createdAt
       const response = await axios.post<Word>('http://localhost:8080/words', wordData);
@@ -83,6 +84,27 @@ const WordBook = () => {
     } catch (error) {
       console.error('Error adding new word:', error);
     }
+  }else{
+      try {
+      // Assuming the backend returns the newly created Word object with id and createdAt
+      const response = await axios.put<Word>('http://localhost:8080/words/'+wordToModify.id, wordData);
+      const newWord = response.data;
+      setWordData((prev) => {
+        // Add the new word to the beginning of the list to show it immediately
+        
+        setSelectedWord(newWord); // Set the newly added word as the selected word to show its details immediately
+        const updated = prev.map((item)=>{
+          if(item.id===newWord.id){
+            return newWord;
+          }
+          return item;
+        });
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error adding new word:', error);
+    }
+  }
   };
   
   useEffect(()=>{
