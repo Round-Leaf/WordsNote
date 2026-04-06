@@ -91,8 +91,7 @@ const WordBook = () => {
       const newWord = response.data;
       setWordData((prev) => {
         // Add the new word to the beginning of the list to show it immediately
-        
-        setSelectedWord(newWord); // Set the newly added word as the selected word to show its details immediately
+        setSelectedWord(newWord); 
         const updated = prev.map((item)=>{
           if(item.id===newWord.id){
             return newWord;
