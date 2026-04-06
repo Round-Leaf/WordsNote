@@ -11,11 +11,11 @@ import axios from 'axios';
 import type { Word } from './types/wods';
 import Pagination from '@mui/material/Pagination';
 import WordDetailDialog from './components/WordDetailDialog';
-import Header from './components/Header'; // Import the new Header component
-import WordCard from './components/WordCard'; // Import the new WordCard component
-import AddWordDialog from './components/AddWordDialog'; // Import the new AddWordDialog component
-import { useSearchParams } from 'react-router-dom';
-import type { SelectChangeEvent } from '@mui/material'; // Import SelectChangeEvent for type safety from top-level
+import Header from './components/Header';
+import WordCard from './components/WordCard';
+import AddWordDialog from './components/AddWordDialog';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import type { SelectChangeEvent } from '@mui/material';
 
 
 
@@ -33,6 +33,7 @@ const WordBook = () => {
   const [wordToModify, setWordToModify] = useState<Word | null>(null); // State for the word being modified
   const [searchType, setSearchType] = useState<'word' | 'meaning'>(searchByType); // State for the selected search type
   const [isAddWordDialogOpen, setIsAddWordDialogOpen] = useState(false); // State for AddWordDialog
+  const navigate = useNavigate();
   const deleteWord = (id:number)=>{
     setWordData((prev)=>{
       return prev.filter((item)=>item.id!==id);
@@ -175,11 +176,12 @@ const WordBook = () => {
     <Box sx={{ bgcolor: '#f1f5f9', minHeight: '100vh' }}>
       <Header
         onAddClick={handleAddWordOpen}
+        onMasteryClick={() => navigate('/mastery')}
         searchValue={searchValue}
         onSearchChange={handleSearchValueChange}
         onSearchKeyDown={onSearchKeyDown}
-        searchType={searchType} // Pass the current search type
-        onSearchTypeChange={handleSearchTypeChange} // Pass the handler for search type changes
+        searchType={searchType}
+        onSearchTypeChange={handleSearchTypeChange}
       />
 
       {/* 主体内容 */}
@@ -199,9 +201,9 @@ const WordBook = () => {
             page={currentPage} // This will be dynamic based on current page state
             color="primary"
             size="large"
-            onChange={(e,p)=>{
+            onChange={(_, p) => {
               const newParams = new URLSearchParams(searchParams);
-              newParams.set("page",p.toString());
+              newParams.set("page", p.toString());
               setSearchParams(newParams);
             }}
           />

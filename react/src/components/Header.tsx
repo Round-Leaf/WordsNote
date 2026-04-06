@@ -8,35 +8,39 @@ import {
   IconButton,
   InputBase,
   Avatar,
-  FormControl, // New import
-  Select,      // New import
-  MenuItem,    // New import
+  Button,
+  FormControl,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import {
   Search as SearchIcon,
   Add as AddIcon,
   AutoAwesome as MagicIcon,
+  School as SchoolIcon,
 } from '@mui/icons-material';
-import type { SelectChangeEvent } from '@mui/material'; // Import SelectChangeEvent from top-level
+import type { SelectChangeEvent } from '@mui/material';
 
 interface HeaderProps {
   onAddClick?: () => void;
+  onMasteryClick?: () => void;
   onSearchChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   searchValue?: string;
   userAvatarSrc?: string;
   onSearchKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
-  searchType: 'word' | 'meaning'; // New prop: current search type
-  onSearchTypeChange: (event: SelectChangeEvent<'word' | 'meaning'>) => void; // New prop: handler for search type change
+  searchType: 'word' | 'meaning';
+  onSearchTypeChange: (event: SelectChangeEvent<'word' | 'meaning'>) => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   onAddClick,
+  onMasteryClick,
   onSearchChange,
   onSearchKeyDown,
   searchValue,
-  userAvatarSrc = "/api/placeholder/40/40", // Default placeholder
-  searchType, // Destructure new prop
-  onSearchTypeChange, // Destructure new prop
+  userAvatarSrc = "/api/placeholder/40/40",
+  searchType,
+  onSearchTypeChange,
 }) => {
   return (
     <AppBar
@@ -116,7 +120,16 @@ const Header: React.FC<HeaderProps> = ({
             </FormControl>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={onMasteryClick}
+              startIcon={<SchoolIcon />}
+              sx={{ textTransform: 'none', display: { xs: 'none', sm: 'inline-flex' } }}
+            >
+              Mastery
+            </Button>
             <IconButton sx={{ bgcolor: 'white', border: '1px solid #e2e8f0' }} onClick={onAddClick}>
               <AddIcon />
             </IconButton>
