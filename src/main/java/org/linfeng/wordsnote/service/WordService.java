@@ -54,7 +54,6 @@ public class WordService {
         word.setEmbedding(embeddingService.getEmbedding(word.getMeaning()));
         Revision revision = new Revision();
         revision.setWord(word);
-        revision.setRevisionTimes(0);
         word.setRevision(revision);
         return wordRepository.save(word);
     }

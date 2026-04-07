@@ -37,8 +37,6 @@ public class Revision {
     @Column(length = 20)
     private Status status;
 
-    @Column(name="revision_times")
-    private Integer revisionTimes;
 
     @OneToOne
     @JoinColumn(name="word_id")

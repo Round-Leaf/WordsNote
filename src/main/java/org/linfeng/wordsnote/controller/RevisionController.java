@@ -27,11 +27,11 @@ public class RevisionController {
             Revision newRevision = new Revision();
             //newRevision.setLastRevisionTime(OffsetDateTime.now());
             Word word = wordRepository.findById(id).orElseThrow();
-            newRevision.setRevisionTimes(0);
+            newRevision.setRepetitions(0);
             newRevision.setWord(word);
             return newRevision;
         });
-        revision.setRevisionTimes(revision.getRevisionTimes()+1);
+        revision.setRepetitions(revision.getRepetitions()+1);
         revisionRepository.save(revision);
         return Result.success("Success");
     }
